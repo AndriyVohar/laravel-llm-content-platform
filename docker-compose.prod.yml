@@ -1,0 +1,36 @@
+# Docker Compose override for production
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    build:
+      target: production
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+    restart: always
+
+  nginx:
+    restart: always
+    # Uncomment and configure for SSL/HTTPS
+    # ports:
+    #   - "443:443"
+    # volumes:
+    #   - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    #   - ./docker/nginx/nginx-prod.conf:/etc/nginx/conf.d/default.conf
+
+  postgres:
+    restart: always
+    # Don't expose port in production
+    ports: []
+
+  ollama:
+    restart: always
+    # Don't expose port in production if not needed externally
+    # ports: []
+
+  # Disable node service in production
+  node:
+    profiles:
+      - disabled
+

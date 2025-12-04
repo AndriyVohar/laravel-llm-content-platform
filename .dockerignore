@@ -1,0 +1,59 @@
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+*.md
+
+# Node modules and build artifacts
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment files
+.env
+.env.*
+!.env.docker
+
+# IDE files
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+tests/
+phpunit.xml
+.phpunit.result.cache
+
+# Docker files (to avoid recursion)
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Storage and cache
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+bootstrap/cache/*
+
+# Vendor (will be installed in container)
+vendor/
+
+# Public build files (will be built)
+public/build/
+public/hot
+
+# Temporary files
+*.log
+*.cache
+
