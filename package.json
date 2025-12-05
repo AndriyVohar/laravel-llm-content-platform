@@ -17,6 +17,8 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^2.2.19",
+        "highlight.js": "^11.11.1",
+        "markdown-it": "^14.1.0",
         "vue": "^3.4.0"
     }
 }

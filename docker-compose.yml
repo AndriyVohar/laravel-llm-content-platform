@@ -25,6 +25,8 @@ services:
         condition: service_healthy
       ollama:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   nginx:
     image: nginx:alpine
