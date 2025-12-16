@@ -1,13 +1,13 @@
 # Laravel LLM Content Platform
 
-A beautiful, modern AI chat application powered by Laravel 12, Vue 3, and Ollama for local LLM inference. Features a stunning gradient UI with real-time AI responses.
+A beautiful, modern AI chat application powered by Laravel 12, Vue 3, and AI Service for flexible LLM integration. Features a stunning gradient UI with real-time AI responses.
 
 ## ✨ Features
 
 ### AI Chat Interface
 - 🎨 **Beautiful Modern UI**: Gradient backgrounds, smooth animations, and polished design
 - 💬 **Real-time Chat**: Instant AI responses with typing indicators
-- 🤖 **Ollama Integration**: Local LLM inference with configurable models
+- 🤖 **AI Service Integration**: Support for multiple LLM providers (DeepInfra, OpenAI, etc.)
 - 📜 **Message History**: Maintains conversation context with timestamps
 - 🗑️ **Clear Chat**: Easy conversation reset
 - ⚡ **Fast & Responsive**: Optimized for performance
@@ -17,38 +17,16 @@ A beautiful, modern AI chat application powered by Laravel 12, Vue 3, and Ollama
 - **Laravel 12**: Latest version of the Laravel framework
 - **Vue 3 + Inertia.js**: Modern SPA experience with server-side rendering
 - **Tailwind CSS 4**: Beautiful, customizable styling
-- **Ollama**: Local LLM inference (llama3.2, mistral, etc.)
+- **AI Service**: Flexible LLM integration with multiple providers
 - **PostgreSQL**: Robust relational database
 - **Docker**: Complete containerized environment
 - **Vite**: Lightning-fast frontend build tool
 
 ## 🎯 Quick Start
 
-### Option 1: Local Development (Recommended for AI Chat)
+### Option 1: Local Development (Recommended)
 
-1. **Install Ollama**
-```bash
-# Linux
-curl -fsSL https://ollama.com/install.sh | sh
-
-# macOS
-brew install ollama
-
-# Windows: Download from ollama.com
-```
-
-2. **Pull an AI Model**
-```bash
-ollama pull llama3.2
-# or try: mistral, phi3, codellama
-```
-
-3. **Start Ollama**
-```bash
-ollama serve
-```
-
-4. **Setup Laravel Application**
+1. **Setup Laravel Application**
 ```bash
 composer install
 npm install
@@ -57,14 +35,14 @@ php artisan key:generate
 php artisan migrate
 ```
 
-5. **Configure Ollama (in .env)**
+2. **Configure AI Service (in .env)**
 ```env
-OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=llama3.2
-OLLAMA_TIMEOUT=120
+AI_SERVICE_URL=http://localhost:8000
+AI_SERVICE_PROVIDER=deepinfra
+AI_SERVICE_TIMEOUT=30
 ```
 
-6. **Start Development Servers**
+3. **Start Development Servers**
 ```bash
 # Terminal 1
 php artisan serve
@@ -73,10 +51,12 @@ php artisan serve
 npm run dev
 ```
 
-7. **Open Your Browser**
+4. **Open Your Browser**
 ```
 http://localhost:8000
 ```
+
+Note: Make sure your AI Service backend is running on `http://localhost:8000`. See [INTEGRATION.md](INTEGRATION.md) for setup instructions.
 
 ### Option 2: Docker Environment
 
@@ -141,7 +121,6 @@ The application runs on four main services:
 | **app** | PHP 8.2 FPM with Laravel | 9000 | laravel_app |
 | **nginx** | Nginx web server | 80 | laravel_nginx |
 | **postgres** | PostgreSQL 16 database | 5432 | laravel_postgres |
-| **ollama** | Ollama LLM service | 11434 | laravel_ollama |
 | **node** | Node.js for Vite (dev only) | 5173 | laravel_node |
 
 ## 🔗 Access Points
@@ -150,7 +129,7 @@ After starting the services:
 
 - **Application**: http://localhost
 - **Vite Dev Server**: http://localhost:5173 (when running with dev profile)
-- **Ollama API**: http://localhost:11434
+- **AI Service API**: http://localhost:8000 (must be started separately)
 - **PostgreSQL**: localhost:5432
 
 Default database credentials:
@@ -220,25 +199,6 @@ docker compose exec -T postgres psql -U laravel laravel < backup.sql
 docker compose exec app php artisan migrate:fresh --seed
 ```
 
-### Ollama (LLM) Management
-
-```bash
-# Pull a model (e.g., llama2, llama3, mistral, phi)
-docker compose exec ollama ollama pull llama2
-
-# List installed models
-docker compose exec ollama ollama list
-
-# Run interactive chat
-docker compose exec ollama ollama run llama2
-
-# Test API
-curl http://localhost:11434/api/generate -d '{
-  "model": "llama2",
-  "prompt": "Hello, world!",
-  "stream": false
-}'
-```
 
 ### Frontend Development
 
@@ -278,28 +238,15 @@ DB_DATABASE=laravel
 DB_USERNAME=laravel
 DB_PASSWORD=secret
 
-# Ollama
-OLLAMA_HOST=http://ollama:11434
-OLLAMA_PORT=11434
+# AI Service
+AI_SERVICE_URL=http://localhost:8000
+AI_SERVICE_PROVIDER=deepinfra
+AI_SERVICE_TIMEOUT=30
 
 # Vite
 VITE_PORT=5173
 ```
 
-### GPU Support for Ollama
-
-If you have an NVIDIA GPU, enable GPU support in `docker-compose.yml`:
-
-```yaml
-ollama:
-  deploy:
-    resources:
-      reservations:
-        devices:
-          - driver: nvidia
-            count: all
-            capabilities: [gpu]
-```
 
 ### PHP Configuration
 
@@ -377,7 +324,6 @@ docker compose run --rm node npm run build
 - [Docker Setup Guide](DOCKER.md) - Detailed Docker infrastructure documentation
 - [Laravel Documentation](https://laravel.com/docs)
 - [Inertia.js Documentation](https://inertiajs.com)
-- [Ollama Documentation](https://ollama.ai)
 
 ## 🛟 Troubleshooting
 
@@ -419,11 +365,11 @@ docker compose exec postgres pg_isready -U laravel
 
 ### Getting Started
 
-1. **Make sure Ollama is running**
+1. **Make sure AI Service is running**
 ```bash
-# Check Ollama status
-curl http://localhost:11434
-# Should return: "Ollama is running"
+# Check AI Service status
+curl http://localhost:8000/api/health
+# Should return: {"status": "ok"}
 ```
 
 2. **Open the application**
@@ -442,58 +388,49 @@ curl http://localhost:11434
 - **Loading Indicator**: Animated dots show when AI is thinking
 - **Clear Chat**: Click the trash button to start a new conversation
 - **Auto-scroll**: Chat automatically scrolls to show new messages
-- **Error Handling**: Helpful error messages if Ollama isn't available
+- **Error Handling**: Helpful error messages if AI Service isn't available
 
-### Changing the AI Model
+### Changing the AI Provider
 
 Edit your `.env` file:
 ```env
-OLLAMA_MODEL=llama3.2      # Default - fast and capable
-# OLLAMA_MODEL=mistral     # Great alternative
-# OLLAMA_MODEL=phi3        # Smaller, faster
-# OLLAMA_MODEL=codellama   # For coding tasks
+AI_SERVICE_PROVIDER=deepinfra      # Default - DeepInfra provider
+# AI_SERVICE_PROVIDER=openai       # OpenAI provider
+# AI_SERVICE_PROVIDER=your_provider # Custom provider
 ```
 
-Don't forget to pull the model first:
+### Available Providers
+
+For a list of available providers and their models, check your AI Service documentation or run:
+
 ```bash
-ollama pull mistral
+# Get available providers from AI Service
+curl http://localhost:8000/api/providers
 ```
-
-### Available Models
-
-| Model | Size | Best For | Speed |
-|-------|------|----------|-------|
-| llama3.2:1b | ~1.3GB | Quick responses | ⚡⚡⚡ |
-| llama3.2 | ~2GB | General chat | ⚡⚡ |
-| mistral | ~4GB | Quality responses | ⚡ |
-| codellama | ~3.8GB | Code generation | ⚡ |
-| phi3 | ~2.3GB | Balanced | ⚡⚡ |
 
 ### Customization
 
 Want to customize the UI? Check out these files:
 - **Frontend**: `resources/js/Pages/Home.vue`
 - **Backend**: `app/Http/Controllers/AIChatController.php`
-- **Service**: `app/Services/OllamaService.php`
-- **Config**: `config/ollama.php`
+- **Service**: `app/Services/AIServiceClient.php`
+- **Config**: `config/services.php`
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for detailed customization guide.
 
 ### Troubleshooting
 
-**"Error: Unable to get response from Ollama"**
+**"Error: Unable to get response from AI Service"**
 ```bash
-# Make sure Ollama is running
-ollama serve
-
-# Or if using Docker
-docker compose exec ollama ollama serve
+# Make sure AI Service is running
+# Check the AI_SERVICE_URL in your .env file
+# Default: http://localhost:8000
 ```
 
 **Slow responses?**
-- Try a smaller model: `ollama pull llama3.2:1b`
-- Check your hardware (RAM, CPU)
-- Increase timeout in `.env`: `OLLAMA_TIMEOUT=180`
+- Check AI Service status: `curl http://localhost:8000/api/health`
+- Increase timeout in `.env`: `AI_SERVICE_TIMEOUT=60`
+- Verify network connection to AI Service
 
 **Chat not updating?**
 ```bash
@@ -505,9 +442,9 @@ npm run dev
 
 ## 📖 Documentation
 
+- [INTEGRATION.md](INTEGRATION.md) - AI Service integration guide
 - [QUICKSTART.md](QUICKSTART.md) - Get up and running in 5 minutes
 - [DEVELOPMENT.md](DEVELOPMENT.md) - Detailed development guide
-- [OLLAMA_SETUP.md](OLLAMA_SETUP.md) - Complete Ollama setup guide
 - [DOCKER.md](DOCKER.md) - Docker configuration details
 
 ## 🤝 Contributing
@@ -523,7 +460,6 @@ This project is open-sourced software licensed under the [MIT license](https://o
 Built with:
 - [Laravel](https://laravel.com) - The PHP Framework
 - [Inertia.js](https://inertiajs.com) - Modern Monolith
-- [Ollama](https://ollama.ai) - Local LLM Runtime
 - [PostgreSQL](https://www.postgresql.org) - Advanced Database
 - [Nginx](https://nginx.org) - High-Performance Web Server
 - [Docker](https://www.docker.com) - Containerization Platform

@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'ai_service' => [
+        'url' => env('AI_SERVICE_URL', 'http://localhost:8000'),
+        'provider' => env('AI_SERVICE_PROVIDER', 'ollama'),
+        'model' => env('AI_SERVICE_MODEL', 'gemma3:4b'),
+        'timeout' => env('AI_SERVICE_TIMEOUT', 30),
+    ],
+
 ];

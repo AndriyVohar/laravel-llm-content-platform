@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
       target: development
-    container_name: laravel_app
+    container_name: laravel_app_platform
     restart: unless-stopped
     working_dir: /var/www
     volumes:
@@ -17,20 +17,21 @@ services:
       - DB_DATABASE=${DB_DATABASE:-laravel}
       - DB_USERNAME=${DB_USERNAME:-laravel}
       - DB_PASSWORD=${DB_PASSWORD:-secret}
-      - OLLAMA_HOST=http://ollama:11434
+      - AI_SERVICE_URL=${AI_SERVICE_URL:-http://localhost:8000}
+      - AI_SERVICE_PROVIDER=${AI_SERVICE_PROVIDER:-ollama}
+      - AI_SERVICE_MODEL=${AI_SERVICE_MODEL:-gemma3:4b}
+      - AI_SERVICE_TIMEOUT=${AI_SERVICE_TIMEOUT:-120}
     networks:
       - laravel-network
     depends_on:
       postgres:
         condition: service_healthy
-      ollama:
-        condition: service_started
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   nginx:
     image: nginx:alpine
-    container_name: laravel_nginx
+    container_name: laravel_nginx_platform
     restart: unless-stopped
     ports:
       - "${APP_PORT:-80}:80"
@@ -50,7 +51,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
-    container_name: laravel_postgres
+    container_name: laravel_postgres_platform
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_DATABASE:-laravel}
@@ -78,14 +79,6 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - laravel-network
-    # Uncomment the following lines if you have an NVIDIA GPU
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
 
   # Optional: Node.js container for Vite development
   node:
@@ -104,11 +97,10 @@ services:
 
 networks:
   laravel-network:
-    driver: bridge
+    external: true
 
 volumes:
   postgres_data:
     driver: local
   ollama_data:
     driver: local
-
